@@ -1,0 +1,25 @@
+# Build
+.build/
+.swiftpm/
+build/
+DerivedData/
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# macOS
+.DS_Store
+._*
+
+# IDE
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Code coverage artifacts from `swift test`
+*.profraw
+*.profdata
