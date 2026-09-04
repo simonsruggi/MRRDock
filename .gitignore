@@ -23,3 +23,9 @@ xcuserdata/
 # Code coverage artifacts from `swift test`
 *.profraw
 *.profdata
+
+# Release automation: needs my Developer ID, notary profile, Sparkle private key
+# and Homebrew tap — nobody else can run it, so it stays local.
+release.sh
+.env.release
+release-notes/

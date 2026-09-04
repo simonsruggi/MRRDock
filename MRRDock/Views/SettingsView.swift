@@ -78,6 +78,10 @@ struct SettingsView: View {
                     HStack {
                         Text("MRRDock \(AppInfo.version)").font(DS.caption).foregroundStyle(DS.inkSecondary)
                         Spacer()
+                        if AppDelegate.updater.isAvailable {
+                            Button("Check for updates") { AppDelegate.updater.checkForUpdates() }
+                                .buttonStyle(.link).font(DS.caption)
+                        }
                         Button("GitHub") {
                             NSWorkspace.shared.open(URL(string: "https://github.com/simonsruggi/MRRDock")!)
                         }

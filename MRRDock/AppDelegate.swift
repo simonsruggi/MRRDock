@@ -1,6 +1,28 @@
 import AppKit
 import Combine
+import Sparkle
 import SwiftUI
+
+/// Sparkle auto-updates.
+///
+/// The updater is only started when the bundle actually carries a feed URL, so
+/// `swift run` and the dev build don't spawn an updater that would check a feed
+/// they can't use.
+@MainActor
+final class UpdaterViewModel: ObservableObject {
+    private let controller: SPUStandardUpdaterController?
+
+    init() {
+        controller = Bundle.main.infoDictionary?["SUFeedURL"] != nil
+            ? SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+            : nil
+    }
+
+    var isAvailable: Bool { controller != nil }
+    var canCheckForUpdates: Bool { controller?.updater.canCheckForUpdates ?? false }
+
+    func checkForUpdates() { controller?.updater.checkForUpdates() }
+}
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -15,6 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private let storage = StorageService.shared
     private let metrics = MetricsService.shared
+    static let updater = UpdaterViewModel()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setUpStatusItem()
