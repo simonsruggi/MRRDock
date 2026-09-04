@@ -71,7 +71,11 @@ struct SourcesView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(source.name).font(DS.body.weight(.medium)).foregroundStyle(DS.ink)
                 HStack(spacing: 4) {
-                    Text(source.kind.displayName).font(DS.caption).foregroundStyle(DS.inkTertiary)
+                    // The platform name is dropped when the user kept it as the
+                    // source name: "Stripe / Stripe" is a line that says nothing.
+                    if source.name != source.kind.displayName {
+                        Text(source.kind.displayName).font(DS.caption).foregroundStyle(DS.inkTertiary)
+                    }
                     if source.flag("sandbox") {
                         Text("TEST").font(DS.label).padding(.horizontal, 4).padding(.vertical, 1)
                             .background(Capsule().fill(DS.warn.opacity(0.15))).foregroundStyle(DS.warn)

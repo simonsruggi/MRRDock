@@ -178,6 +178,14 @@ enum Format {
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
+    /// Plain grouped number, for labels that are counts rather than money.
+    static func decimal(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? "\(Int(value))"
+    }
+
     static func percent(_ value: Double, decimals: Int = 1) -> String {
         String(format: "%@%.\(decimals)f%%", value >= 0 ? "+" : "", value)
     }

@@ -15,10 +15,35 @@ enum ProviderError: LocalizedError {
         case .badURL: return "Invalid URL"
         case .insecureURL: return "Only https:// endpoints are allowed"
         case .http(let code, let body):
-            let detail = body.prefix(180).trimmingCharacters(in: .whitespacesAndNewlines)
+            let detail = ProviderError.message(fromBody: body)
             return detail.isEmpty ? "HTTP \(code)" : "HTTP \(code): \(detail)"
         case .decoding(let what): return "Unexpected response (\(what))"
         }
+    }
+}
+
+extension ProviderError {
+    /// Human part of an API error body.
+    ///
+    /// Every one of these APIs answers a bad key with a JSON blob; showing it
+    /// raw in a 380pt popover is four lines of `doc_url` and `retryable` around
+    /// the one sentence that matters ("Invalid API key.").
+    static func message(fromBody body: String) -> String {
+        if let data = body.data(using: .utf8),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            let candidates: [String?] = [
+                json.str("message"),
+                json.obj("error")?.str("message"),
+                json.str("error_description"),
+                json.str("detail"),
+                json.str("error"),
+                (json.arr("errors")?.first).flatMap { $0.str("detail") ?? $0.str("message") },
+            ]
+            if let message = candidates.compactMap({ $0 }).first(where: { !$0.isEmpty }) {
+                return message
+            }
+        }
+        return String(body.prefix(180)).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

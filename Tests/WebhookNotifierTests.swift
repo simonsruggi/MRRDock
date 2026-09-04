@@ -20,3 +20,22 @@ final class WebhookNotifierTests: XCTestCase {
         XCTAssertEqual(slack.payload(title: "T", body: "B", positive: false)["text"] as? String, "*T*\nB")
     }
 }
+
+final class ProviderErrorTests: XCTestCase {
+    func testHTTPErrorsShowTheProviderMessageNotTheRawJSON() {
+        let revenueCat = #"{"doc_url":"https://errors.rev.cat/authentication-error","message":"Invalid API key.","object":"error","retryable":false}"#
+        XCTAssertEqual(ProviderError.http(401, revenueCat).errorDescription, "HTTP 401: Invalid API key.")
+
+        let stripe = #"{"error":{"type":"invalid_request_error","message":"Invalid API Key provided: rk_live_***"}}"#
+        XCTAssertEqual(ProviderError.http(401, stripe).errorDescription, "HTTP 401: Invalid API Key provided: rk_live_***")
+
+        let lemonSqueezy = #"{"errors":[{"status":"401","detail":"Unauthenticated."}]}"#
+        XCTAssertEqual(ProviderError.http(401, lemonSqueezy).errorDescription, "HTTP 401: Unauthenticated.")
+    }
+
+    func testNonJSONBodiesFallBackToTheTruncatedText() {
+        XCTAssertEqual(ProviderError.http(502, "<html>Bad gateway</html>").errorDescription,
+                       "HTTP 502: <html>Bad gateway</html>")
+        XCTAssertEqual(ProviderError.http(500, "   ").errorDescription, "HTTP 500")
+    }
+}

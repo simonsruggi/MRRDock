@@ -57,11 +57,11 @@ struct SettingsView: View {
                     Toggle("MRR milestones", isOn: $storage.notifyMilestones)
                     if storage.notifyMilestones {
                         Picker("Every", selection: $storage.milestoneStep) {
-                            Text("100").tag(100.0)
-                            Text("500").tag(500.0)
-                            Text("1.000").tag(1000.0)
-                            Text("5.000").tag(5000.0)
-                            Text("10.000").tag(10000.0)
+                            // Formatted, not hard-coded: "1.000" is right in
+                            // Italian and wrong everywhere else.
+                            ForEach([100.0, 500.0, 1000.0, 5000.0, 10000.0], id: \.self) { step in
+                                Text(Format.money(step, currency: storage.displayCurrency)).tag(step)
+                            }
                         }
                     }
                     Toggle("Daily summary (after 22:00)", isOn: $storage.notifyDailySummary)

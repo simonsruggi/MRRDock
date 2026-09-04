@@ -57,6 +57,23 @@ Platforms without a public revenue API — Superwall today, for instance — go 
 
 `currency`, `active_subscriptions`, `trials` and `revenue_28d` are optional; `mrr` (or `monthly_recurring_revenue`) is all you need. A bearer token can be sent with the request, and the response may be wrapped in `data` or `result`. This is also the way to keep a payment key off your laptop entirely: let your own backend hold it and expose only the aggregate.
 
+## Screenshots
+
+<div align="center">
+
+<img src="screenshots/overview.png" alt="MRRDock overview: total MRR, 30-day change, sparkline and per-source breakdown" width="380">
+<img src="screenshots/by-source.png" alt="MRR split by source across Stripe, RevenueCat, Paddle, Lemon Squeezy and Gumroad" width="380">
+
+<img src="screenshots/sources.png" alt="Connected sources, each one switchable" width="380">
+<img src="screenshots/add-source.png" alt="Adding a RevenueCat source, with a Test button that validates the key before saving" width="380">
+
+<img src="screenshots/settings.png" alt="Settings: display currency, menu bar mode, refresh interval and notifications" width="380">
+<img src="screenshots/overview-dark.png" alt="MRRDock in dark mode" width="380">
+
+<sub>Figures in the screenshots are demo data.</sub>
+
+</div>
+
 ## Install
 
 Download the latest release, or build it yourself. MRRDock is not notarized yet, so the first launch needs a right-click → **Open**.
