@@ -115,7 +115,8 @@ final class StorageService: ObservableObject {
         guard !isLoading else { return }
         saveTimer?.invalidate()
         saveTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
-            Task { @MainActor in self?.save() }
+            guard let storage = self else { return }
+            Task { @MainActor in storage.save() }
         }
     }
 

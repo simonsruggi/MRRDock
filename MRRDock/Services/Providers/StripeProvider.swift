@@ -44,7 +44,6 @@ struct StripeProvider: RevenueProvider {
             var query = [
                 URLQueryItem(name: "status", value: status),
                 URLQueryItem(name: "limit", value: "100"),
-                URLQueryItem(name: "expand[]", value: "data.discounts"),
             ]
             if let cursor = startingAfter { query.append(URLQueryItem(name: "starting_after", value: cursor)) }
             let page = try await http.getObject("\(base)/subscriptions", headers: headers, query: query)
@@ -85,8 +84,15 @@ struct StripeProvider: RevenueProvider {
     /// Percentage discounts are applied; fixed-amount coupons are not, because a
     /// €5-off coupon on a €5 plan would need per-line proration Stripe does not
     /// expose on the subscription object.
+    ///
+    /// Discounts are read from whatever the account's API version already
+    /// returns — the legacy `discount` object, or `discounts` when it comes back
+    /// expanded. They are deliberately *not* requested with `expand[]`: an
+    /// expand path the account's API version doesn't know is a 400, and losing
+    /// the whole MRR over a coupon nobody has is a bad trade.
     private func discountPercent(_ sub: [String: Any]) -> Double {
-        let discounts = (sub["discounts"] as? [[String: Any]]) ?? [sub.obj("discount")].compactMap { $0 }
+        var discounts = sub.arr("discounts") ?? []
+        if let single = sub.obj("discount") { discounts.append(single) }
         for discount in discounts {
             if let percent = discount.obj("coupon")?.num("percent_off") { return percent }
         }

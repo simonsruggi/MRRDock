@@ -34,10 +34,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .store(in: &observers)
 
         cycleTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: true) { [weak self] _ in
+            guard let delegate = self else { return }
             Task { @MainActor in
-                guard let self, self.storage.menuBarMode == .perSource else { return }
-                self.sourceIndex += 1
-                self.updateTitle()
+                guard delegate.storage.menuBarMode == .perSource else { return }
+                delegate.sourceIndex += 1
+                delegate.updateTitle()
             }
         }
 
@@ -52,7 +53,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.metrics.refresh(force: true) }
+                guard let delegate = self else { return }
+                Task { @MainActor in delegate.metrics.refresh(force: true) }
             }
     }
 
@@ -86,7 +88,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshTimer?.invalidate()
         let interval = TimeInterval(max(minutes, 1) * 60)
         refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.metrics.refresh() }
+            guard let delegate = self else { return }
+            Task { @MainActor in delegate.metrics.refresh() }
         }
     }
 
