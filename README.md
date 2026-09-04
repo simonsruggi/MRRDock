@@ -310,7 +310,7 @@ macOS 14 Sonoma and later, Apple Silicon and Intel.
 | A source shows a warning triangle | It failed its last refresh and is showing its previous figure. Hover the triangle for the reason. |
 | Nothing in the menu bar | With many menu bar items macOS hides the newest ones. Free a slot, or use a menu bar manager. |
 | "MRRDock is damaged / unidentified developer" | Shouldn't happen — the app is notarized. If it does, the download was corrupted: delete it and grab the zip again from Releases. |
-| macOS keeps asking for your Keychain password | The Keychain ties saved keys to the exact signature of the app that stored them. A rebuild with an ad-hoc signature changes it every time, so `build-app.sh` signs with your Developer ID when it finds one. To stop an existing loop: delete the source and add it again. |
+| macOS asks for your Keychain password | Click **Always Allow**. The Keychain ties a saved key to the signature of the app that stored it, so a copy signed differently (a local ad-hoc build next to the released app) is treated as a different app. If the prompt keeps coming back, delete the source and add it again from the copy you actually use. |
 
 ## Roadmap
 
