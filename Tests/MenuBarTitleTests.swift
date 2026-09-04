@@ -4,6 +4,7 @@ import XCTest
 final class MenuBarTitleTests: XCTestCase {
     private func aggregate(mrr: Double = 1234, subs: Int = 42, revenue: Double = 2000) -> Aggregate {
         var a = Aggregate()
+        a.sourcesReporting = 1
         a.currency = "EUR"
         a.mrr = mrr
         a.activeSubscriptions = subs
@@ -47,6 +48,14 @@ final class MenuBarTitleTests: XCTestCase {
                                                privacy: false, decimals: 0)), "")
         XCTAssertEqual(MenuBarTitle.text(.init(mode: .mrr, aggregate: aggregate(), growth30d: nil,
                                                privacy: false, decimals: 0, hasSources: false)), "MRR —")
+    }
+
+    func testNoAnswerYetShowsADashNotZero() {
+        var pending = Aggregate()
+        pending.currency = "EUR"
+        let title = MenuBarTitle.text(.init(mode: .mrr, aggregate: pending, growth30d: nil,
+                                            privacy: false, decimals: 0))
+        XCTAssertEqual(title, "—")
     }
 
     func testPerSourceCyclesAndTruncatesLongNames() {

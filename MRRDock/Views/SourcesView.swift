@@ -32,6 +32,7 @@ struct SourcesView: View {
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(Capsule().fill(DS.brand))
                         .foregroundStyle(.white)
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
                 Spacer()
@@ -89,10 +90,18 @@ struct SourcesView: View {
             } else if state.snapshot != nil {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(DS.up).font(.system(size: 11))
             }
-            Button { editing = source } label: { Image(systemName: "slider.horizontal.3").font(.system(size: 11)) }
-                .buttonStyle(.plain).foregroundStyle(DS.inkSecondary)
-            Button { pendingDelete = source } label: { Image(systemName: "trash").font(.system(size: 11)) }
-                .buttonStyle(.plain).foregroundStyle(DS.inkTertiary)
+            // Icon buttons get a real 22pt target: an 11pt glyph is a coin toss
+            // with a trackpad.
+            Button { editing = source } label: {
+                Image(systemName: "slider.horizontal.3").font(.system(size: 11))
+                    .frame(width: 22, height: 22).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain).foregroundStyle(DS.inkSecondary)
+            Button { pendingDelete = source } label: {
+                Image(systemName: "trash").font(.system(size: 11))
+                    .frame(width: 22, height: 22).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain).foregroundStyle(DS.inkTertiary)
         }
         .card(padding: 11)
     }

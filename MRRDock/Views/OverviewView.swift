@@ -13,6 +13,10 @@ struct OverviewView: View {
             VStack(alignment: .leading, spacing: 14) {
                 if storage.sources.isEmpty {
                     emptyState
+                } else if aggregate.sourcesReporting == 0 && aggregate.sourcesFailing == 0 {
+                    // No source has answered yet. A zero here would be a
+                    // fabricated number — the app knows nothing, and says so.
+                    loadingState
                 } else {
                     hero
                     stats
@@ -34,6 +38,7 @@ struct OverviewView: View {
                 if storage.privacyMode {
                     Button { revealed.toggle() } label: {
                         Image(systemName: revealed ? "eye.slash" : "eye").font(.system(size: 10))
+                            .frame(width: 20, height: 20).contentShape(Rectangle())
                     }
                     .buttonStyle(.plain).foregroundStyle(DS.inkTertiary)
                 }
@@ -141,6 +146,14 @@ struct OverviewView: View {
             Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 9)).foregroundStyle(DS.warn)
             Text(text).font(DS.caption).foregroundStyle(DS.inkSecondary)
         }
+    }
+
+    private var loadingState: some View {
+        VStack(spacing: 10) {
+            ProgressView().controlSize(.small)
+            Text("Loading your revenue…").font(DS.body).foregroundStyle(DS.inkSecondary)
+        }
+        .frame(maxWidth: .infinity).padding(.vertical, 60)
     }
 
     private var emptyState: some View {

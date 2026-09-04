@@ -18,5 +18,17 @@ cp MRRDock/Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 sed 's|<key>CFBundleName</key>|<key>CFBundleExecutable</key><string>MRRDock</string><key>CFBundleName</key>|' \
     MRRDock/Info.plist > "$APP/Contents/Info.plist"
 
-codesign --force --deep --sign - "$APP"
+# Signed with a Developer ID when one is available, ad-hoc otherwise.
+#
+# This is not about Gatekeeper: an ad-hoc signature changes with every build, so
+# the Keychain stops recognising the app and asks for your password again after
+# each rebuild. A stable identity keeps the saved API keys reachable.
+IDENTITY="${MRRDOCK_SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{print $2; exit}')}"
+if [ -n "$IDENTITY" ]; then
+    echo "Signing with: $IDENTITY"
+    codesign --force --options runtime --timestamp=none --sign "$IDENTITY" "$APP"
+else
+    echo "No Developer ID found, signing ad-hoc (the Keychain will re-prompt after each rebuild)"
+    codesign --force --sign - "$APP"
+fi
 echo "Built $APP"

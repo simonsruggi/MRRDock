@@ -18,6 +18,9 @@ enum MenuBarTitle {
 
     static func text(_ input: Input) -> String {
         guard input.hasSources else { return "MRR —" }
+        // Nothing has answered yet (first launch, no network, a pending Keychain
+        // prompt): show a dash rather than a confident zero.
+        if input.aggregate.sourcesReporting == 0 && input.aggregate.sourcesFailing == 0 { return "—" }
         if input.privacy { return "•••" }
         let aggregate = input.aggregate
         let currency = aggregate.currency

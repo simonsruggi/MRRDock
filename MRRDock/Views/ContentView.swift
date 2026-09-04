@@ -63,6 +63,10 @@ struct ContentView: View {
                         .padding(.horizontal, 9).padding(.vertical, 5)
                         .background(Capsule().fill(tab == item ? DS.brand.opacity(0.12) : .clear))
                         .foregroundStyle(tab == item ? DS.brand : DS.inkSecondary)
+                        // Without this the unselected tab is a transparent
+                        // capsule: SwiftUI hit-tests the glyphs only, so a click
+                        // landing between the icon and the label does nothing.
+                        .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
@@ -75,6 +79,8 @@ struct ContentView: View {
                     .rotationEffect(.degrees(metrics.isRefreshing ? 360 : 0))
                     .animation(metrics.isRefreshing ? .linear(duration: 1).repeatForever(autoreverses: false) : .default,
                                value: metrics.isRefreshing)
+                    .frame(width: 22, height: 22)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(DS.inkSecondary)
