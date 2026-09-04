@@ -64,9 +64,14 @@ Three rules the code sticks to:
 
 - `MRRDOCK_SHOW_WINDOW=1` opens the popover content in a plain window (a popover can't be opened from a script — this is how screenshots are taken).
 
+## Releasing
+
+`./release.sh <version> <build>` (local, gitignored: it needs the Developer ID, the notarytool keychain profile, the Sparkle private key and push access to the tap) runs: bump → test → universal build → assemble → smoke test → nested code-sign → notarize → staple → Sparkle EdDSA signature → `appcast.xml` → GitHub release → Homebrew cask bump.
+
+Sparkle reads `appcast.xml` from `raw.githubusercontent.com/.../main/appcast.xml`, so the feed updates the moment the release commit lands. The EdDSA key is the same one StockDock uses — Sparkle's own guidance is one signing key per developer, not per app.
+
 ## Roadmap
 
-- Sparkle auto-updates and a Homebrew cask
 - App Store Connect / Google Play as first-class sources
 - Per-source history, not just the total
 - Localisation (the app currently ships English only)

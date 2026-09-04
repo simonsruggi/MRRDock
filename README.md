@@ -6,12 +6,18 @@
 
 No account, no server, no subscription. Your API keys stay in your macOS Keychain and the numbers never leave your Mac.
 
+[![Latest release](https://img.shields.io/github/v/release/simonsruggi/MRRDock?label=download&logo=apple&color=black)](https://github.com/simonsruggi/MRRDock/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/simonsruggi/MRRDock/total?logo=github&color=2ea44f)](https://github.com/simonsruggi/MRRDock/releases)
 [![Platform](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://github.com/simonsruggi/MRRDock/releases/latest)
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange?logo=swift&logoColor=white)](https://swift.org)
 [![License: MIT](https://img.shields.io/github/license/simonsruggi/MRRDock?color=blue)](LICENSE)
 [![CI](https://github.com/simonsruggi/MRRDock/actions/workflows/ci.yml/badge.svg)](https://github.com/simonsruggi/MRRDock/actions/workflows/ci.yml)
 [![Star](https://img.shields.io/github/stars/simonsruggi/MRRDock?style=social)](https://github.com/simonsruggi/MRRDock)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/simonsruggi)
+
+```bash
+brew install --cask simonsruggi/tap/mrrdock
+```
 
 <img src="screenshots/overview.png" alt="MRRDock macOS menu bar app showing total MRR, 30-day growth and a per-source breakdown across Stripe, RevenueCat and Paddle" width="380">
 
@@ -61,7 +67,7 @@ It's a companion to the analytics products, not a replacement: ChartMogul, Barem
 - **Discord and Slack notifications** — MRR milestones ("just crossed €5,000") and an optional daily summary at 22:00.
 - **Credential test before saving** — the Add source sheet has a Test button that calls the API and reports the real MRR, or the platform's own error message, before anything is stored.
 - **Failure-tolerant** — a source that errors keeps its last known figure with an error badge instead of dropping the total to zero, and the popover says how many sources are stale.
-- **Light, dark and system appearance**, native SwiftUI, universal binary (Apple Silicon and Intel), **zero third-party dependencies**.
+- **Light, dark and system appearance**, native SwiftUI, universal binary (Apple Silicon and Intel), signed and notarized, with **built-in auto-updates**.
 
 ## Screenshots
 
@@ -99,7 +105,13 @@ Every key is used read-only: MRRDock issues `GET` requests and nothing else.
 
 ## Install
 
-Download the app from [Releases](https://github.com/simonsruggi/MRRDock/releases/latest), drag it to `/Applications`, and launch it. MRRDock isn't notarized yet, so the first launch needs a **right-click → Open** (macOS then remembers it).
+```bash
+brew install --cask simonsruggi/tap/mrrdock
+```
+
+Or [**download MRRDock.zip**](https://github.com/simonsruggi/MRRDock/releases/latest), unzip it and drag the app to `/Applications`. It's signed with a Developer ID and notarized by Apple, so it opens with a double-click — no right-click dance, no "unidentified developer".
+
+**Auto-updates** are built in (Sparkle): MRRDock checks a signed update feed every 6 hours and offers new versions in place. Settings → *Check for updates* forces a check, and the Homebrew cask is marked `auto_updates true` so brew leaves it alone.
 
 Prefer to build it yourself? See [Build from source](#build-from-source) — it takes one command.
 
@@ -297,12 +309,11 @@ macOS 14 Sonoma and later, Apple Silicon and Intel.
 | MRR lower than expected | Check the warnings under the totals: unpriced usage-based subscriptions, or a currency with no exchange rate. |
 | A source shows a warning triangle | It failed its last refresh and is showing its previous figure. Hover the triangle for the reason. |
 | Nothing in the menu bar | With many menu bar items macOS hides the newest ones. Free a slot, or use a menu bar manager. |
-| "MRRDock is damaged / unidentified developer" | Right-click the app → **Open** (it isn't notarized yet). |
+| "MRRDock is damaged / unidentified developer" | Shouldn't happen — the app is notarized. If it does, the download was corrupted: delete it and grab the zip again from Releases. |
 | macOS keeps asking for your Keychain password | The Keychain ties saved keys to the exact signature of the app that stored them. A rebuild with an ad-hoc signature changes it every time, so `build-app.sh` signs with your Developer ID when it finds one. To stop an existing loop: delete the source and add it again. |
 
 ## Roadmap
 
-- Sparkle auto-updates and a Homebrew cask (`brew install simonsruggi/tap/mrrdock`)
 - App Store Connect and Google Play as first-class sources
 - Per-source history and charts, not just the total
 - Localisation (the app ships English only today)
