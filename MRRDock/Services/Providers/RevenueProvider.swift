@@ -53,6 +53,24 @@ extension ProviderError {
 protocol RevenueProvider: Sendable {
     var kind: ProviderKind { get }
     func fetch(source: Source, secret: String, http: HTTPClient) async throws -> ProviderSnapshot
+
+    /// The MRR the provider itself recorded, one point per day.
+    ///
+    /// Without this the chart can only start the day the source was added,
+    /// which makes a two-year-old business look like it began this week.
+    /// Returning an empty array means "I can't answer that" — the app then
+    /// falls back to its own readings rather than drawing a partial total.
+    func history(source: Source, secret: String, http: HTTPClient, days: Int) async throws -> [DailyMRR]
+}
+
+/// One day of provider-reported MRR, in the provider's own currency.
+struct DailyMRR: Equatable {
+    var date: Date
+    var money: Money
+}
+
+extension RevenueProvider {
+    func history(source: Source, secret: String, http: HTTPClient, days: Int) async throws -> [DailyMRR] { [] }
 }
 
 enum ProviderRegistry {

@@ -30,6 +30,36 @@ struct RevenueCatProvider: RevenueProvider {
         return snapshot
     }
 
+    /// Daily MRR from the project's own MRR chart — the same series the
+    /// RevenueCat dashboard draws, so the app inherits the whole history
+    /// instead of starting from the day the source was added.
+    func history(source: Source, secret: String, http: HTTPClient, days: Int) async throws -> [DailyMRR] {
+        guard let projectID = source.option("projectId") else { throw ProviderError.missingOption("Project ID") }
+        let json = try await http.getObject(
+            "https://api.revenuecat.com/v2/projects/\(projectID)/charts/mrr",
+            headers: ["Authorization": "Bearer \(secret)", "Accept": "application/json"],
+            query: [URLQueryItem(name: "resolution", value: "day"),
+                    URLQueryItem(name: "start_date", value: Self.day(daysAgo: days)),
+                    URLQueryItem(name: "end_date", value: Self.day(daysAgo: 0))])
+
+        let currency = json.str("yaxis_currency") ?? "USD"
+        return (json.arr("values") ?? []).compactMap { point in
+            // The last cohort is flagged incomplete: it is today's partial
+            // figure, and plotting it as a day would draw a daily crash.
+            guard (point["incomplete"] as? Bool) != true,
+                  let cohort = point.num("cohort"), let value = point.num("value") else { return nil }
+            return DailyMRR(date: Date(timeIntervalSince1970: cohort), money: Money(value, currency))
+        }
+    }
+
+    private static func day(daysAgo: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date().addingTimeInterval(-Double(daysAgo) * 86_400))
+    }
+
     /// Reads both response shapes RevenueCat has shipped: a flat object of
     /// metric names, and the `{"metrics": [{"id": …, "value": …}]}` envelope.
     /// Supporting both costs ten lines and means a response format change does

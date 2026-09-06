@@ -8,6 +8,7 @@ macOS menu bar app showing aggregated MRR across payment platforms. No account, 
 - **Platform**: macOS 14+ · **Build**: Swift Package Manager, **no dependencies**
 - **Storage**: `~/Library/Application Support/MRRDock/data.json` (settings, sources, MRR history) + `fx.json` (rate cache); secrets in the login Keychain under service `com.simone.mrrdock`
 - **Exchange rates**: Yahoo Finance public quote endpoint (no key), cached 12h
+- **Chart history**: backfilled once a day from each provider's own series (RevenueCat: `GET /v2/projects/<id>/charts/mrr?resolution=day`), so the trend predates the install; the app's own readings cover today
 
 ## Folder structure
 
@@ -21,7 +22,7 @@ MRRDock/
 │   ├── AppDelegate.swift            # status item, popover, refresh + cycle timers
 │   ├── Models/
 │   │   ├── Money.swift              # BillingInterval, Money, MoneyBag, MRRMath (pure)
-│   │   ├── Source.swift             # ProviderKind, Source, ProviderSnapshot, MRRHistory
+│   │   ├── Source.swift             # ProviderKind, Source, ProviderSnapshot, ChartRange, MRRHistory
 │   │   ├── Aggregate.swift          # cross-source totals + MilestoneEvaluator (pure)
 │   │   └── MenuBarTitle.swift       # the status item string (pure)
 │   ├── Services/

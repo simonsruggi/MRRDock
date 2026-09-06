@@ -4,6 +4,9 @@ struct OverviewView: View {
     @ObservedObject private var storage = StorageService.shared
     @ObservedObject private var metrics = MetricsService.shared
     @State private var revealed = false
+    @State private var pickingDates = false
+    /// Which end of the custom range the calendar is editing.
+    @State private var editingEnd = false
 
     private var aggregate: Aggregate { metrics.aggregate }
     private var hidden: Bool { storage.privacyMode && !revealed }
@@ -58,18 +61,117 @@ struct OverviewView: View {
                     Text("ago").font(DS.caption).foregroundStyle(DS.inkTertiary)
                 }
             }
-            if chartPoints.count > 1 {
-                Sparkline(points: chartPoints, color: DS.trend(growth30d ?? 0))
-                    .frame(height: 54)
-                    .padding(.top, 4)
+            Group {
+                if chartPoints.count > 1 {
+                    Sparkline(points: chartPoints, color: DS.trend(growth30d ?? 0))
+                } else {
+                    Text("Not enough data in this range")
+                        .font(DS.caption).foregroundStyle(DS.inkTertiary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
+            .frame(height: 54)
+            .padding(.top, 4)
+            rangePicker
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card()
     }
 
-    private var chartPoints: [Double] {
-        storage.history.suffix(90).map(\.mrr)
+    private var chartPoints: [MRRPoint] {
+        MRRHistory.points(storage.history, in: storage.chartRange,
+                          from: storage.chartCustomFrom, to: storage.chartCustomTo)
+    }
+
+    // MARK: Range
+
+    private var rangePicker: some View {
+        HStack(spacing: 4) {
+            ForEach(ChartRange.allCases) { range in
+                Button {
+                    storage.chartRange = range
+                    if range == .custom {
+                        if storage.chartCustomFrom == nil {
+                            storage.chartCustomFrom = Date().addingTimeInterval(-30 * 86_400)
+                        }
+                        if storage.chartCustomTo == nil { storage.chartCustomTo = Date() }
+                        editingEnd = false
+                        pickingDates = true
+                    }
+                } label: {
+                    rangeLabel(range)
+                        .font(DS.caption.weight(.medium))
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Capsule().fill(storage.chartRange == range ? DS.brand.opacity(0.12) : .clear))
+                        .foregroundStyle(storage.chartRange == range ? DS.brand : DS.inkTertiary)
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+        }
+        .popover(isPresented: $pickingDates, arrowEdge: .bottom) { customRangeSheet }
+    }
+
+    @ViewBuilder
+    private func rangeLabel(_ range: ChartRange) -> some View {
+        if range == .custom, storage.chartRange == .custom,
+           let from = storage.chartCustomFrom, let to = storage.chartCustomTo {
+            Text("\(Format.shortDate(min(from, to))) – \(Format.shortDate(max(from, to)))")
+        } else if range == .custom {
+            Image(systemName: "calendar").font(.system(size: 10, weight: .medium))
+        } else {
+            Text(range.label)
+        }
+    }
+
+    private var customRangeSheet: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                endpoint("From", date: storage.chartCustomFrom, active: !editingEnd) { editingEnd = false }
+                Image(systemName: "arrow.right").font(.system(size: 9)).foregroundStyle(DS.inkTertiary)
+                endpoint("To", date: storage.chartCustomTo, active: editingEnd) { editingEnd = true }
+            }
+            RangeCalendar(start: Binding(get: { storage.chartCustomFrom ?? Date() },
+                                         set: { storage.chartCustomFrom = $0 }),
+                          end: Binding(get: { storage.chartCustomTo ?? Date() },
+                                       set: { storage.chartCustomTo = $0 }),
+                          editingEnd: $editingEnd)
+        }
+        .padding(14)
+        .frame(width: 290)
+    }
+
+    /// Picking a start date moves the calendar on to the end date, so the
+    /// common case is two clicks and no mode switching.
+    private var editedDate: Binding<Date> {
+        Binding(
+            get: { (editingEnd ? storage.chartCustomTo : storage.chartCustomFrom) ?? Date() },
+            set: { picked in
+                if editingEnd {
+                    storage.chartCustomTo = picked
+                } else {
+                    storage.chartCustomFrom = picked
+                    editingEnd = true
+                }
+            })
+    }
+
+    private func endpoint(_ title: String, date: Date?, active: Bool, select: @escaping () -> Void) -> some View {
+        Button(action: select) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).sectionLabel()
+                Text(date.map(Format.shortDate) ?? "—")
+                    .font(DS.body.weight(.medium))
+                    .foregroundStyle(active ? DS.brand : DS.ink)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 10).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(active ? DS.brand.opacity(0.12) : DS.cardAlt))
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var growth30d: Double? {

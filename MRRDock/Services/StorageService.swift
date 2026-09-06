@@ -21,6 +21,18 @@ final class StorageService: ObservableObject {
     @Published var appearanceRaw: String = "system" { didSet { scheduleSave() } }
     @Published var decimals: Int = 0 { didSet { scheduleSave() } }
 
+    // MARK: Chart
+    @Published var chartRangeRaw: String = ChartRange.week.rawValue { didSet { scheduleSave() } }
+    @Published var chartCustomFrom: Date? { didSet { scheduleSave() } }
+    @Published var chartCustomTo: Date? { didSet { scheduleSave() } }
+    /// Last time the provider history was pulled in. See `backfillHistory`.
+    @Published var lastBackfill: Date? { didSet { scheduleSave() } }
+
+    var chartRange: ChartRange {
+        get { ChartRange(rawValue: chartRangeRaw) ?? .week }
+        set { chartRangeRaw = newValue.rawValue }
+    }
+
     // MARK: Notifications
     @Published var webhookURL: String = "" { didSet { scheduleSave() } }
     @Published var notifyMilestones: Bool = false { didSet { scheduleSave() } }
@@ -84,6 +96,12 @@ final class StorageService: ObservableObject {
         var lastMilestone: Double
         var notifyDailySummary: Bool
         var lastSummaryDay: String
+        /// Optional: a data.json written before 1.1 has no chart settings, and
+        /// a missing key must not throw away the whole file.
+        var chartRange: String?
+        var chartCustomFrom: Date?
+        var chartCustomTo: Date?
+        var lastBackfill: Date?
     }
 
     private func load() {
@@ -106,6 +124,10 @@ final class StorageService: ObservableObject {
         lastMilestone = payload.lastMilestone
         notifyDailySummary = payload.notifyDailySummary
         lastSummaryDay = payload.lastSummaryDay
+        chartRangeRaw = payload.chartRange ?? ChartRange.week.rawValue
+        chartCustomFrom = payload.chartCustomFrom
+        chartCustomTo = payload.chartCustomTo
+        lastBackfill = payload.lastBackfill
     }
 
     /// Disk writes are debounced: every keystroke in Settings mutates a
@@ -127,7 +149,9 @@ final class StorageService: ObservableObject {
                               appearance: appearanceRaw, decimals: decimals, webhookURL: webhookURL,
                               notifyMilestones: notifyMilestones, milestoneStep: milestoneStep,
                               lastMilestone: lastMilestone, notifyDailySummary: notifyDailySummary,
-                              lastSummaryDay: lastSummaryDay)
+                              lastSummaryDay: lastSummaryDay, chartRange: chartRangeRaw,
+                              chartCustomFrom: chartCustomFrom, chartCustomTo: chartCustomTo,
+                              lastBackfill: lastBackfill)
         do {
             try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
             let encoder = JSONEncoder()
@@ -184,6 +208,14 @@ enum Format {
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 0
         return formatter.string(from: NSNumber(value: value)) ?? "\(Int(value))"
+    }
+
+    /// Day and month only: the custom-range chip has room for two dates, not
+    /// two full ones.
+    static func shortDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMM")
+        return formatter.string(from: date)
     }
 
     static func percent(_ value: Double, decimals: Int = 1) -> String {

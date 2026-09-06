@@ -60,7 +60,7 @@ It's a companion to the analytics products, not a replacement: ChartMogul, Barem
 
 - **Multi-platform aggregation** — Stripe, RevenueCat, Paddle, Lemon Squeezy, Polar, Dodo Payments, Gumroad and any HTTPS endpoint of your own, in any combination. Several accounts of the same platform are fine: two Stripe accounts and three RevenueCat projects add up like anything else.
 - **Multi-currency** — every source is converted into your display currency (EUR, USD, GBP, CHF, JPY, CAD, AUD, SEK, NOK, DKK, PLN, BRL, INR) with live exchange rates, cached for 12 hours. Amounts that can't be converted are shown separately, never silently dropped.
-- **MRR trend** — a daily local snapshot builds a 90-day sparkline and the "vs 30 days ago" delta. No server, no account: it's a JSON file on your Mac.
+- **MRR trend** — 24H, 7D, 1Y or a custom range, with the "vs 30 days ago" delta. The history is pulled from your provider's own MRR series, so the chart shows the business, not the day you installed MRRDock. No server, no account: it's a JSON file on your Mac.
 - **Seven menu bar modes** — MRR · MRR + 30-day change · ARR · revenue over 28 days · active subscriptions · one source at a time (cycling every 4 seconds) · icon only.
 - **Per-source breakdown** — what each platform contributes, in currency and as a share of the total, with its active subscription count.
 - **Privacy mode** — replaces every figure with `•••` for screen sharing or a café, revealed with one click.
@@ -295,7 +295,7 @@ Not yet as first-class sources (they need report downloads rather than a metrics
 It sleeps between refreshes — every 15 minutes by default, configurable from 5 minutes to 6 hours — and does nothing else while idle.
 
 **Where's the 30-day change on day one?**
-It appears once there's history to compare against. MRRDock records one point per day and refuses to compute growth against a baseline that isn't 30 days old, because "+400% since Tuesday" is not information.
+It appears once there's history to compare against. MRRDock refuses to compute growth against a baseline that isn't 30 days old, because "+400% since Tuesday" is not information. Providers that expose their own MRR series (RevenueCat) are backfilled once a day, so the baseline is usually there from the first launch.
 
 **Which macOS versions?**
 macOS 14 Sonoma and later, Apple Silicon and Intel.

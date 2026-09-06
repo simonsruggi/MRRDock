@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Chart ranges: 24H, 7D, 1Y and a custom range picked on a calendar
+- The trend now starts where the business did, not where MRRDock was installed: history is backfilled daily from each provider's own MRR series (RevenueCat today; providers that can't answer keep the local readings)
+- Readings from the last 48 hours are kept as they come, so the 24H chart has a shape; older ones still collapse to one per day
+- The chart plots time on the x-axis instead of position in the array — a year no longer gives today half the width
+- `build-app.sh` signs the bundled Sparkle framework, which otherwise refused to load in a locally built app
+
 ## 1.0.0
 
 First release.

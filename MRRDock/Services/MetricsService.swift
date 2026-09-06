@@ -86,6 +86,7 @@ final class MetricsService: ObservableObject {
 
         await convertAndAggregate()
         lastRefresh = Date()
+        await backfillHistory(sources: sources)
         recordHistory()
         await notifyIfNeeded()
     }
@@ -106,6 +107,49 @@ final class MetricsService: ObservableObject {
     /// changes, so switching EUR→USD is instant instead of a full refresh.
     func recompute() {
         Task { await convertAndAggregate() }
+    }
+
+    /// Replaces the past of the chart with what the providers themselves
+    /// recorded, so the trend line reflects the business rather than the day
+    /// this app was installed. Today is left to `recordHistory`, which is the
+    /// only reading taken at a known instant and in a known currency.
+    ///
+    /// Backfilling runs once a day: the series only changes at that resolution,
+    /// and every run is one extra API call per source.
+    private func backfillHistory(sources: [Source]) async {
+        let mrrSources = sources.filter(\.kind.reportsMRR)
+        guard !mrrSources.isEmpty,
+              MRRHistory.backfillDue(lastRun: storage.lastBackfill) else { return }
+
+        let http = self.http
+        var perSource: [UUID: [DailyMRR]] = [:]
+        await withTaskGroup(of: (UUID, [DailyMRR]).self) { group in
+            for source in mrrSources {
+                let secret = storage.secret(for: source) ?? ""
+                group.addTask {
+                    let provider = ProviderRegistry.provider(for: source.kind)
+                    let history = try? await provider.history(source: source, secret: secret,
+                                                              http: http, days: 730)
+                    return (source.id, history ?? [])
+                }
+            }
+            for await (id, history) in group { perSource[id] = history }
+        }
+
+        // A source that can't answer, or that failed, would drag every day of
+        // the total down by its own share. Better no backfill than a chart
+        // that invents a dip.
+        guard perSource.count == mrrSources.count, perSource.values.allSatisfy({ !$0.isEmpty }) else { return }
+
+        let currencies = Set(perSource.values.flatMap { $0.map(\.money.currency) })
+        await fx.ensureRates(for: currencies, target: storage.displayCurrency)
+        let target = storage.displayCurrency
+        let totals = MRRHistory.dailyTotals(perSource, currency: target) { [fx] from, to in
+            fx.cachedRate(from: from, to: to)
+        }
+        guard !totals.isEmpty else { return }
+        storage.history = MRRHistory.backfilled(storage.history, with: totals, currency: target)
+        storage.lastBackfill = Date()
     }
 
     private func recordHistory() {

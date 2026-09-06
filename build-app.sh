@@ -30,9 +30,22 @@ sed 's|<key>CFBundleName</key>|<key>CFBundleExecutable</key><string>MRRDock</str
 IDENTITY="${MRRDOCK_SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{print $2; exit}')}"
 if [ -n "$IDENTITY" ]; then
     echo "Signing with: $IDENTITY"
-    codesign --force --options runtime --timestamp=none --sign "$IDENTITY" "$APP"
+    SIGN=("--options" "runtime" "--timestamp=none" "--sign" "$IDENTITY")
 else
     echo "No Developer ID found, signing ad-hoc (the Keychain will re-prompt after each rebuild)"
-    codesign --force --sign - "$APP"
+    SIGN=("--sign" "-")
 fi
+
+# Sparkle ships pre-signed by its own team, so the app and the framework it
+# loads end up with different Team IDs and dyld refuses the bundle at launch.
+# Sign the nested pieces first — inside out, as codesign requires.
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+for nested in "$FW/Versions/B/XPCServices/Downloader.xpc" \
+              "$FW/Versions/B/XPCServices/Installer.xpc" \
+              "$FW/Versions/B/Updater.app" \
+              "$FW/Versions/B/Autoupdate"; do
+    [ -e "$nested" ] && codesign --force "${SIGN[@]}" "$nested"
+done
+codesign --force "${SIGN[@]}" "$FW"
+codesign --force "${SIGN[@]}" "$APP"
 echo "Built $APP"

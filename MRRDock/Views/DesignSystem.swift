@@ -72,10 +72,10 @@ struct TrendPill: View {
     }
 }
 
-/// The MRR trend line. Deliberately axis-less: with two weeks of daily points
-/// the shape is the message, and gridlines would only add ink to a 60pt strip.
+/// The MRR trend line. Deliberately axis-less: the shape is the message, and
+/// gridlines would only add ink to a 60pt strip.
 struct Sparkline: View {
-    let points: [Double]
+    let points: [MRRPoint]
     var color: Color = DS.brand
 
     var body: some View {
@@ -90,17 +90,25 @@ struct Sparkline: View {
         }
     }
 
+    /// X is time, not position in the array. The series mixes dense readings
+    /// from the last two days with one point per day before that, so spacing
+    /// them evenly would give today half the width of a year.
     private func coordinates(in size: CGSize) -> [CGPoint] {
-        guard points.count > 1 else { return [] }
-        let minimum = points.min() ?? 0
-        let maximum = points.max() ?? 1
+        guard points.count > 1, let first = points.first, let last = points.last else { return [] }
+        let values = points.map(\.mrr)
+        let minimum = values.min() ?? 0
+        let maximum = values.max() ?? 1
         // A flat line would divide by zero; drawing it through the middle is
         // more honest than snapping it to the top or the bottom of the box.
         let span = maximum - minimum
-        return points.enumerated().map { index, value in
-            let x = size.width * CGFloat(index) / CGFloat(points.count - 1)
-            let ratio = span > 0 ? (value - minimum) / span : 0.5
-            return CGPoint(x: x, y: size.height * (1 - CGFloat(ratio)) * 0.9 + size.height * 0.05)
+        let elapsed = last.date.timeIntervalSince(first.date)
+        return points.enumerated().map { index, point in
+            let progress = elapsed > 0
+                ? point.date.timeIntervalSince(first.date) / elapsed
+                : Double(index) / Double(points.count - 1)
+            let ratio = span > 0 ? (point.mrr - minimum) / span : 0.5
+            return CGPoint(x: size.width * CGFloat(progress),
+                           y: size.height * (1 - CGFloat(ratio)) * 0.9 + size.height * 0.05)
         }
     }
 
@@ -121,5 +129,44 @@ struct Sparkline: View {
         path.addLine(to: CGPoint(x: first.x, y: size.height))
         path.closeSubpath()
         return path
+    }
+}
+
+/// A month calendar without AppKit's bezel.
+///
+/// SwiftUI's `.graphical` DatePicker draws an NSDatePicker with its border and
+/// background on, which lands a blue-tinted box inside the popover. There is no
+/// modifier for either, so the picker is built directly.
+struct CalendarPicker: NSViewRepresentable {
+    @Binding var date: Date
+    var accent: NSColor = NSColor(DS.brand)
+
+    func makeNSView(context: Context) -> NSDatePicker {
+        let picker = NSDatePicker()
+        picker.datePickerStyle = .clockAndCalendar
+        picker.datePickerElements = .yearMonthDay
+        picker.isBezeled = false
+        picker.isBordered = false
+        picker.drawsBackground = false
+        // Otherwise the calendar takes focus inside the popover and AppKit
+        // draws a blue ring around it.
+        picker.refusesFirstResponder = true
+        picker.maxDate = Date()
+        picker.target = context.coordinator
+        picker.action = #selector(Coordinator.changed(_:))
+        return picker
+    }
+
+    func updateNSView(_ picker: NSDatePicker, context: Context) {
+        context.coordinator.onChange = { date = $0 }
+        if picker.dateValue != date { picker.dateValue = date }
+        picker.maxDate = Date()
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator: NSObject {
+        var onChange: ((Date) -> Void)?
+        @objc func changed(_ sender: NSDatePicker) { onChange?(sender.dateValue) }
     }
 }
