@@ -6,26 +6,23 @@
         <description>MRRDock update feed</description>
         <language>en</language>
         <item>
-            <title>Version 1.0.0</title>
-            <pubDate>Fri, 04 Sep 2026 18:26:58 +0200</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <title>Version 1.1.0</title>
+            <pubDate>Sun, 06 Sep 2026 13:30:18 +0200</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h3>First release</h3>
+<h3>Real history, and ranges to read it in</h3>
 <ul>
-<li><b>One number for every platform</b> — Stripe, RevenueCat, Paddle, Lemon Squeezy, Polar, Dodo Payments, Gumroad and any custom HTTPS endpoint, added up in your currency.</li>
-<li><b>MRR computed properly</b> — yearly plans divided by twelve, seats and quantities counted, percentage coupons applied, trials counted but priced at zero, usage-based plans flagged instead of guessed.</li>
-<li><b>Menu bar modes</b> — MRR, MRR + 30-day change, ARR, 28-day revenue, active subscriptions, one source at a time, or icon only.</li>
-<li><b>Trend</b> — a daily local snapshot builds a 90-day sparkline and the "vs 30 days ago" delta.</li>
-<li><b>Privacy mode</b>, light/dark appearance, and Discord/Slack notifications for MRR milestones and a daily summary.</li>
-<li><b>Private by design</b> — API keys live in the macOS Keychain, no account, no server, no telemetry.</li>
+<li><b>The chart starts where your business did</b> — MRRDock now backfills the daily MRR series from the provider itself, instead of only showing the days since you added the source. RevenueCat today; other providers keep the local readings until their turn.</li>
+<li><b>Ranges</b> — 24H, 7D, 1Y, or two dates on a calendar.</li>
+<li><b>A truthful line</b> — time on the x-axis, days summed only when every source reports them, and no leading zeros from before you had customers.</li>
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.0.0/MRRDock.zip"
+            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.1.0/MRRDock.zip"
                        type="application/octet-stream"
-                       sparkle:edSignature="Ur8FxjquWULiw5uW4YXqQg58ZpdqW2zWlYMPKDIPMq2wP4H8EgTasm97kTubh3gSp54S0EAEfWn6+hz3r3oQBw=="
-                       length="2413017"/>
+                       sparkle:edSignature="PsC63exrkOEtzD/FGxIPUPB7uiS/DvHjIAAbYE1lvU9VsMPloE1DEGobuvicWVtejGfnBA3gEvHwec3Oj/OvCw=="
+                       length="2573493"/>
         </item>
     </channel>
 </rss>
