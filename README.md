@@ -1,6 +1,6 @@
 <div align="center">
 
-# MRRDock — your MRR in the macOS menu bar
+# MRRDock — MRR tracker for the macOS menu bar
 
 **A free, open-source MRR tracker for Mac. It reads Stripe, RevenueCat, Paddle, Lemon Squeezy, Polar, Dodo Payments and Gumroad, adds them up, and keeps the total one glance away in your menu bar.**
 
@@ -34,6 +34,7 @@ brew install --cask simonsruggi/tap/mrrdock
 - [Install](#install)
 - [Connect each platform](#connect-each-platform) — [Stripe](#stripe) · [RevenueCat](#revenuecat) · [Paddle](#paddle) · [Lemon Squeezy](#lemon-squeezy) · [Polar](#polar) · [Dodo Payments](#dodo-payments) · [Gumroad](#gumroad) · [Custom endpoint](#custom-endpoint-superwall-app-store-connect-anything-else)
 - [How MRR is calculated](#how-mrr-is-calculated)
+- [MRRDock vs the alternatives](#mrrdock-vs-the-alternatives)
 - [Menu bar modes](#menu-bar-modes)
 - [Notifications](#notifications)
 - [Privacy and security](#privacy-and-security)
@@ -218,6 +219,27 @@ Decisions worth knowing about, because they're the ones that make dashboards dis
 
 Exchange rates come from Yahoo Finance's public quote endpoint (no key, no identifying data) and are cached for 12 hours.
 
+## MRRDock vs the alternatives
+
+Every MRR tracker for the Mac menu bar makes a different trade. Here is where MRRDock sits, so you can pick the right one rather than the first one.
+
+| | MRRDock | CatBar | IndieBar | Baremetrics / ChartMogul / ProfitWell |
+| --- | --- | --- | --- | --- |
+| Price | Free, MIT | Freemium, Pro subscription | Paid, one-time | Paid monthly, per MRR tier |
+| Source code | Open | Closed | Closed | Closed |
+| Platforms read | Stripe, RevenueCat, Paddle, Lemon Squeezy, Polar, Dodo, Gumroad, custom HTTPS | RevenueCat | Stripe, RevenueCat, GA4 | Stripe, and whatever the plan includes |
+| Several accounts per platform | Yes | — | — | Depends on plan |
+| Where the data goes | Nowhere: Mac → platform API | Mac → RevenueCat API | Mac → platform APIs | Your billing data on their servers |
+| Cohorts, LTV, churn analysis | — | — | — | Yes, that's the point |
+| Menu bar | Yes | Yes | Yes | Browser |
+
+Read it this way:
+
+- **You ship on more than one platform and want one number.** That is what MRRDock was built for, and the reason it prices subscriptions item by item instead of trusting a single provider's summary.
+- **You only use RevenueCat and want notifications, sounds and transaction history.** CatBar is the more polished single-platform app.
+- **You want cohorts, LTV, churn and forecasting.** Use Baremetrics or ChartMogul. MRRDock answers one question — "what is my MRR right now?" — and deliberately stops there.
+- **You want a free and open-source MRR tracker whose API keys never leave your Keychain.** MRRDock is the only one of the four with a source tree you can read before you paste a Stripe key into it.
+
 ## Menu bar modes
 
 | Mode | Example |
@@ -300,6 +322,15 @@ It appears once there's history to compare against. MRRDock refuses to compute g
 **Which macOS versions?**
 macOS 14 Sonoma and later, Apple Silicon and Intel.
 
+**Is there a free alternative to Baremetrics or ChartMogul?**
+For the MRR figure itself, yes: MRRDock reads the same subscriptions from the same platforms and costs nothing. For cohort analysis, LTV and churn forecasting, no — see [MRRDock vs the alternatives](#mrrdock-vs-the-alternatives).
+
+**Can it show MRR from several Stripe accounts and RevenueCat projects at once?**
+Yes, that's the main reason it exists. Add one source per account or project, in any mix, and the menu bar shows the converted total.
+
+**Is there a Windows or Linux version?**
+No. MRRDock is a native macOS menu bar app (SwiftUI, no dependencies). The provider code is plain Swift and reusable, but there's no cross-platform build.
+
 ## Troubleshooting
 
 | Symptom | Fix |
@@ -332,8 +363,6 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 <div align="center">
-
-**Keywords:** macOS menu bar MRR tracker · Stripe MRR app for Mac · RevenueCat MRR dashboard · Paddle, Lemon Squeezy, Polar and Dodo Payments revenue monitor · open-source SaaS revenue tracker for indie hackers.
 
 Made with ❤️ by [Simone Ruggiero](https://simoneruggiero.com?utm_source=MRRDock&utm_medium=readme)
 
