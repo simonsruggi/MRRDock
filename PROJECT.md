@@ -65,6 +65,17 @@ Three rules the code sticks to:
 
 - `MRRDOCK_SHOW_WINDOW=1` opens the popover content in a plain window (a popover can't be opened from a script — this is how screenshots are taken).
 
+## Website and discoverability
+
+Landing page: <https://mrrdock.simoneruggiero.com> — repo `simonsruggi/mrrdock-website`
+(`~/webapps/mrrdock-website`), static HTML on Cloudflare Pages, deployed on push. It carries
+the schema.org `SoftwareApplication` + `FAQPage` markup, `llms.txt` and the IndexNow
+submission that a GitHub repo page cannot have. When the README's numbers change (per-platform
+coverage, the MRR formula), that page has to change with it: they are meant to agree.
+
+`blog/launch-kit.md` holds the launch copy (Show HN, Product Hunt, Reddit, AlternativeTo) and
+the thresholds `Homebrew/homebrew-cask` requires before a self-submission is eligible.
+
 ## Releasing
 
 `./release.sh <version> <build>` (local, gitignored: it needs the Developer ID, the notarytool keychain profile, the Sparkle private key and push access to the tap) runs: bump → test → universal build → assemble → smoke test → nested code-sign → notarize → staple → Sparkle EdDSA signature → `appcast.xml` → GitHub release → Homebrew cask bump.

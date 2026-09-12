@@ -1,0 +1,68 @@
+<p>I sell software in more places than I'd like to admit.</p>
+<p>The iOS apps report through RevenueCat. A web product bills on Stripe. Paddle handles a desktop app because it's a merchant of record and VAT is not a hobby I want. Templates sit on Lemon Squeezy. Three of those bill in dollars, I think in euros.</p>
+<p>So the question "how am I actually doing this month?" costs me four logins, four dashboards, and a mental sum with a currency conversion in the middle of it. I was asking that question roughly twenty times a day, and answering it badly.</p>
+<p>MRRDock is the answer to that question, sitting in the menu bar:</p>
+<pre><code>brew install --cask simonsruggi/tap/mrrdock</code></pre>
+<p>One number. All platforms. Your currency. Free, open source, and the data never leaves your Mac.</p>
+<h2>What it does</h2>
+<p>It's a menu bar app — no Dock icon, no window. You add your sources once, and from then on the total MRR is always visible. Click it and the popover breaks the number down.</p>
+<ul>
+<li><strong>Multi-platform aggregation.</strong> Stripe, RevenueCat, Paddle Billing, Lemon Squeezy, Polar, Dodo Payments, Gumroad, plus any HTTPS endpoint of your own. Multiple accounts of the same platform are fine: two Stripe accounts and four RevenueCat projects add up like anything else.</li>
+<li><strong>Multi-currency.</strong> Every source converts into your display currency with live rates cached for 12 hours. Amounts that can't be converted are shown separately, never silently folded into the total.</li>
+<li><strong>A real MRR trend.</strong> 24H, 7D, 1Y or a custom range, with a "vs 30 days ago" delta.</li>
+<li><strong>Seven menu bar modes.</strong> MRR, MRR + 30-day change, ARR, 28-day revenue, active subscriptions, one source at a time cycling every four seconds, or icon only.</li>
+<li><strong>Privacy mode.</strong> One click replaces every figure with ••• for screen sharing or a café.</li>
+<li><strong>Discord and Slack notifications.</strong> MRR milestones ("just crossed €5,000") and an optional daily summary.</li>
+</ul>
+<h2>The part I care about: honest arithmetic</h2>
+<p>Anyone can call four APIs and add up the numbers. The interesting work is in deciding what a number <em>means</em>, and being loud about the cases where you don't know.</p>
+<p>Every recurring line item gets priced the same way:</p>
+<pre><code>monthly = unit_price × quantity × (intervals_per_month ÷ interval_count) × (1 − discount)</code></pre>
+<p><code>intervals_per_month</code> is <strong>30.4375</strong> for daily, <strong>4.348</strong> for weekly, <strong>1</strong> for monthly and <strong>1/12</strong> for yearly. That's the average Gregorian month — 365.25 ÷ 12 — chosen so that twelve monthly plans and one yearly plan reconcile to the cent instead of quietly drifting apart over a year.</p>
+<p>Then there are the judgement calls. These are the ones that make any two dashboards disagree, so MRRDock documents all of them:</p>
+<ul>
+<li><strong>Free trial</strong> — counted in Trials, contributes €0 to MRR.</li>
+<li><strong>Yearly plan</strong> — divided by 12. <strong>Seats / quantity</strong> — multiplied.</li>
+<li><strong>Percentage coupon (−20%)</strong> — applied.</li>
+<li><strong>Fixed-amount coupon (−€5)</strong> — <em>not</em> applied: prorating it across a multi-item subscription needs data these APIs don't return.</li>
+<li><strong>Usage-based / metered price</strong> — <em>not guessed.</em> Flagged as "could not be priced" so the understatement is visible.</li>
+<li><strong>Past due / grace period</strong> — follows the provider's own status.</li>
+<li><strong>ARR</strong> — exactly MRR × 12, nothing smoothed behind your back.</li>
+</ul>
+<p>The rule I kept coming back to: <strong>an understated total you can see beats a confident total that's wrong.</strong> A metered plan MRRDock can't price shows up as a warning in the popover, not as a zero it hopes you won't notice.</p>
+<p>Gumroad gets the same treatment at the source level. Its API exposes sales, not a subscription ledger you can price — so deriving an MRR from one-off sales would be a guess. That source contributes 28-day revenue only, and the UI says exactly that.</p>
+<h2>When my app disagreed with RevenueCat, and both were right</h2>
+<p>Two days after I started using it, MRRDock said 303.76 € across four RevenueCat projects. The RevenueCat dashboard said 306 €. It also said 11 active trials against my 9.</p>
+<p>The instinct is to assume you have a bug. I spent an evening proving I didn't, and the answer is a nice illustration of why aggregation is harder than it looks:</p>
+<ol>
+<li><strong>/v2/metrics/overview returns MRR rounded to whole dollars.</strong> Four projects reporting 181, 127, 27 and 18 dollars carry up to ±2 $ of rounding — about ±1.7 € once converted. That's most of the gap right there.</li>
+<li><strong>We use different exchange rates.</strong> Mine come from Yahoo, cached for 12 hours. RevenueCat uses its own, at its own moment.</li>
+<li><strong>The trials were mine.</strong> Four RevenueCat projects were sitting at zero MRR so I never bothered adding them to MRRDock — but one of them had 2 live trials. 9 + 2 = 11. Not a bug: an incomplete configuration, which the per-source breakdown made obvious in about ten seconds.</li>
+</ol>
+<p>Expected residual drift: around 0.7%. Neither number is wrong. That's worth knowing <em>before</em> you go looking for a bug in your own code at midnight.</p>
+<h2>The chart should show the business, not the install date</h2>
+<p>The first version stored a daily snapshot locally and drew a sparkline from it. Which means a brand-new install shows a flat line, and your MRR history "starts" the day you discovered the app. Useless.</p>
+<p>So MRRDock backfills from the provider's own daily MRR series. RevenueCat exposes it:</p>
+<pre><code>GET /v2/projects/{project}/charts/mrr?resolution=day
+    &amp;start_date=YYYY-MM-DD&amp;end_date=YYYY-MM-DD</code></pre>
+<p>Same series the dashboard draws. Two things cost me time and are worth writing down: the dates <strong>must</strong> be YYYY-MM-DD (epoch timestamps get a 400), and outside the range where data exists the API answers with zeros rather than an empty array — so you have to trim the leading zeros yourself or your chart opens with a cliff that never happened. The last point comes back with <code>incomplete: true</code>, meaning today-so-far: discard it.</p>
+<p>Providers that can't answer keep their locally recorded readings. You get the longest honest history each source can give you.</p>
+<h2>Your keys, your Mac</h2>
+<p>There is no MRRDock backend. There is nothing to sign up for. I could not see your revenue if I wanted to.</p>
+<ul>
+<li>API keys live in the <strong>macOS Keychain</strong>, never in the app's JSON file, never in logs, never in a config you might paste into a GitHub issue.</li>
+<li>Requests go only to the platforms you configure, plus Yahoo Finance for exchange rates — a currency pair, nothing about you.</li>
+<li>No account, no login, no analytics, no telemetry, no crash reporting.</li>
+<li>HTTPS only: a custom endpoint on http:// is refused rather than handed your token in clear.</li>
+<li><strong>Read-only by construction.</strong> The app issues GET requests and nothing else. A key with write scope still can't change anything through MRRDock.</li>
+</ul>
+<p>That last point is why the <em>custom endpoint</em> source exists, incidentally. Some platforms have no public revenue API at all — Superwall, App Store Connect. Point MRRDock at any HTTPS URL of yours that returns the numbers, and it becomes a source like the others.</p>
+<h2>What it isn't</h2>
+<p>It's not a replacement for ChartMogul, Baremetrics or the RevenueCat dashboard. Cohorts, LTV, churn analysis — those belong on a real screen, and I'm not going to do them worse inside a popover.</p>
+<p>MRRDock answers the one question you ask twenty times a day, without opening a browser.</p>
+<h2>Try it</h2>
+<p>Native SwiftUI, no third-party dependencies, macOS 14+, universal binary, signed with a Developer ID and notarized by Apple, with built-in auto-updates. MIT licensed.</p>
+<pre><code>brew install --cask simonsruggi/tap/mrrdock</code></pre>
+<p>Or grab the zip from the <a href="https://github.com/simonsruggi/MRRDock/releases/latest">releases page</a>.</p>
+<p>The code is on GitHub: <a href="https://github.com/simonsruggi/MRRDock">github.com/simonsruggi/MRRDock</a>. Issues and pull requests welcome — especially if you sell through a platform I haven't covered yet.</p>
+<p>If the number goes up, that's on you. I just made it easier to look at.</p>

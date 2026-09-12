@@ -19,6 +19,8 @@ No account, no server, no subscription. Your API keys stay in your macOS Keychai
 brew install --cask simonsruggi/tap/mrrdock
 ```
 
+**[mrrdock.simoneruggiero.com](https://mrrdock.simoneruggiero.com)** — screenshots, FAQ and download
+
 <img src="screenshots/overview.png" alt="MRRDock macOS menu bar app showing total MRR, 30-day growth and a per-source breakdown across Stripe, RevenueCat and Paddle" width="380">
 
 </div>
