@@ -6,23 +6,23 @@
         <description>MRRDock update feed</description>
         <language>en</language>
         <item>
-            <title>Version 1.1.0</title>
-            <pubDate>Sun, 06 Sep 2026 13:30:18 +0200</pubDate>
-            <sparkle:version>2</sparkle:version>
-            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <title>Version 1.1.1</title>
+            <pubDate>Tue, 15 Sep 2026 16:23:23 +0200</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.1.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h3>Real history, and ranges to read it in</h3>
+<h3>Small fixes</h3>
 <ul>
-<li><b>The chart starts where your business did</b> — MRRDock now backfills the daily MRR series from the provider itself, instead of only showing the days since you added the source. RevenueCat today; other providers keep the local readings until their turn.</li>
-<li><b>Ranges</b> — 24H, 7D, 1Y, or two dates on a calendar.</li>
-<li><b>A truthful line</b> — time on the x-axis, days summed only when every source reports them, and no leading zeros from before you had customers.</li>
+<li><b>The change follows the range</b> — the percentage next to your MRR now describes the chart below it: 24H, 7D, 1Y or your own dates, instead of always the last 30 days.</li>
+<li><b>Closes when you click away</b> — the popover now closes on a click in any other app.</li>
+<li><b>Version in the header</b> — the version you are running is shown at the top.</li>
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.1.0/MRRDock.zip"
+            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.1.1/MRRDock.zip"
                        type="application/octet-stream"
-                       sparkle:edSignature="PsC63exrkOEtzD/FGxIPUPB7uiS/DvHjIAAbYE1lvU9VsMPloE1DEGobuvicWVtejGfnBA3gEvHwec3Oj/OvCw=="
-                       length="2573493"/>
+                       sparkle:edSignature="JLD25MKvsy36M2a/49oRdv+79G3nx9CrWr2A5463DQEfso1HA5DQ2JNlMUCPfGYhjNYhB7DjUcDCHbADyWshBg=="
+                       length="2590920"/>
         </item>
     </channel>
 </rss>
