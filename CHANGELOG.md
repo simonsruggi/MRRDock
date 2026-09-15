@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.1.1
+
+- The growth pill follows the selected chart range instead of always comparing with 30 days ago; hidden when history doesn't reach back to the start of the range
+- The popover closes on clicks in other apps
+- App version in the header; local builds from `build-app.sh` show a DEV badge
+
+## 1.1.0
 
 - Chart ranges: 24H, 7D, 1Y and a custom range picked on a calendar
 - The trend now starts where the business did, not where MRRDock was installed: history is backfilled daily from each provider's own MRR series (RevenueCat today; providers that can't answer keep the local readings)

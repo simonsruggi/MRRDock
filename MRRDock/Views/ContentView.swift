@@ -58,10 +58,24 @@ struct ContentView: View {
         return "v\(v)"
     }
 
+    /// `build-app.sh` stamps its bundles; `release.sh` builds its own and never
+    /// does. `swift run` has no Info.plist at all. Either way, not the released app.
+    private var isDevBuild: Bool {
+        guard let info = Bundle.main.infoDictionary, info["CFBundleShortVersionString"] != nil else { return true }
+        return info["MRRDockDevBuild"] as? Bool == true
+    }
+
     private var titleBar: some View {
         HStack(spacing: 6) {
             Text("MRRDock").font(DS.title).foregroundStyle(DS.ink)
             Text(appVersion).font(DS.caption.weight(.medium)).foregroundStyle(DS.inkTertiary)
+            if isDevBuild {
+                Text("DEV")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 4).padding(.vertical, 1)
+                    .background(RoundedRectangle(cornerRadius: 3).fill(DS.warn))
+            }
             Spacer()
         }
         .padding(.horizontal, 14).padding(.top, 10)

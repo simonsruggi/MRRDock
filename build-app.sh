@@ -21,6 +21,9 @@ cp -R .build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sp
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/MRRDock" 2>/dev/null || true
 sed 's|<key>CFBundleName</key>|<key>CFBundleExecutable</key><string>MRRDock</string><key>CFBundleName</key>|' \
     MRRDock/Info.plist > "$APP/Contents/Info.plist"
+# Shows the DEV badge next to the version. release.sh assembles its own bundle
+# and never sets it, so a local build is never mistaken for the released app.
+/usr/libexec/PlistBuddy -c "Add :MRRDockDevBuild bool true" "$APP/Contents/Info.plist"
 
 # Signed with a Developer ID when one is available, ad-hoc otherwise.
 #

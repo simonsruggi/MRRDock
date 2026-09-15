@@ -103,6 +103,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let popover = NSPopover()
         popover.contentSize = NSSize(width: 380, height: 520)
         popover.behavior = .transient
+        popover.delegate = self
         popover.contentViewController = NSHostingController(rootView: ContentView())
         self.popover = popover
     }
@@ -123,6 +124,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
+            // `.transient` only closes on clicks the app itself receives. A
+            // menu bar app is usually not active, so a click on another app's
+            // window would leave the popover open without this monitor.
+            eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+                Task { @MainActor in self?.popover?.performClose(nil) }
+            }
             metrics.refresh()
         }
     }
@@ -155,5 +162,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // The icon is dropped in text modes when the user turns it off, but a
         // title-less mode always keeps it — a blank status item is unclickable.
         button.image = (storage.showMenuBarIcon || title.isEmpty) ? menuBarIcon() : nil
+    }
+}
+
+extension AppDelegate: NSPopoverDelegate {
+    func popoverDidClose(_ notification: Notification) {
+        if let eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+            self.eventMonitor = nil
+        }
     }
 }
