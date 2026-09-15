@@ -26,6 +26,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            titleBar
             header
             Divider().overlay(DS.hairline)
             Group {
@@ -49,6 +50,21 @@ struct ContentView: View {
         case "dark": return .dark
         default: return nil
         }
+    }
+
+    /// Marketing version prefixed with "v", e.g. "v1.1.0".
+    private var appVersion: String {
+        let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        return "v\(v)"
+    }
+
+    private var titleBar: some View {
+        HStack(spacing: 6) {
+            Text("MRRDock").font(DS.title).foregroundStyle(DS.ink)
+            Text(appVersion).font(DS.caption.weight(.medium)).foregroundStyle(DS.inkTertiary)
+            Spacer()
+        }
+        .padding(.horizontal, 14).padding(.top, 10)
     }
 
     private var header: some View {

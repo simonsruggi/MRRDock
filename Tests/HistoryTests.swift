@@ -85,6 +85,37 @@ final class HistoryTests: XCTestCase {
         XCTAssertTrue(MRRHistory.points(series(from: now), in: .custom, now: now, calendar: calendar).isEmpty)
     }
 
+    // MARK: Growth over the selected range
+
+    private func dailySeries(_ values: [(Int, Double)], from now: Date) -> [MRRPoint] {
+        values.map { MRRPoint(date: day($0.0, from: now), mrr: $0.1, currency: "EUR") }
+    }
+
+    func testGrowthFollowsTheSelectedRange() {
+        let now = Date()
+        let points = dailySeries([(-364, 50), (-30, 100), (-6, 200), (-2, 250)], from: now)
+            + [MRRPoint(date: now.addingTimeInterval(-86_000), mrr: 300, currency: "EUR")]
+        XCTAssertEqual(MRRHistory.growth(points, in: .year, current: 400, now: now, calendar: calendar), 700)
+        XCTAssertEqual(MRRHistory.growth(points, in: .week, current: 400, now: now, calendar: calendar), 100)
+        XCTAssertEqual(MRRHistory.growth(points, in: .day, current: 400, now: now, calendar: calendar)!, 33.33, accuracy: 0.01)
+    }
+
+    func testGrowthNeedsHistoryReachingBackToTheStartOfTheRange() {
+        let now = Date()
+        // Three months of history must not be passed off as a yearly change.
+        let young = dailySeries([(-90, 100), (-1, 200)], from: now)
+        XCTAssertNil(MRRHistory.growth(young, in: .year, current: 200, now: now, calendar: calendar))
+    }
+
+    func testCustomRangeGrowthRunsBetweenItsOwnEnds() {
+        let now = Date()
+        let points = dailySeries([(-60, 100), (-40, 150), (-20, 200), (-1, 900)], from: now)
+        let growth = MRRHistory.growth(points, in: .custom, from: day(-60, from: now), to: day(-20, from: now),
+                                       current: 900, now: now, calendar: calendar)
+        // The end of a past window is the reading there, not today's MRR.
+        XCTAssertEqual(growth, 100)
+    }
+
     // MARK: Backfill from the providers
 
     private let a = UUID(), b = UUID()

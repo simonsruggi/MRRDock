@@ -196,6 +196,31 @@ enum MRRHistory {
         return points.filter { $0.date >= start }
     }
 
+    /// Growth across the chart's window, so the pill describes the line it sits
+    /// above. Rolling ranges end at `current` (the live MRR); a custom range
+    /// ends at its last reading, since its window may lie in the past.
+    /// Nil when history starts well after the window does: three months of
+    /// data must not be passed off as a yearly change.
+    static func growth(_ points: [MRRPoint], in range: ChartRange, from: Date? = nil, to: Date? = nil,
+                       current: Double, now: Date = Date(), calendar: Calendar = .current) -> Double? {
+        let window = self.points(points, in: range, from: from, to: to, now: now, calendar: calendar)
+        guard let first = window.first else { return nil }
+        let start: Date, end: Date
+        if range == .custom {
+            guard let from, let to else { return nil }
+            start = calendar.startOfDay(for: min(from, to))
+            end = calendar.startOfDay(for: max(from, to)).addingTimeInterval(86_400)
+        } else {
+            guard let duration = range.duration else { return nil }
+            start = now.addingTimeInterval(-duration)
+            end = now
+        }
+        let tolerance = max(end.timeIntervalSince(start) * 0.2, 2 * 3600)
+        guard first.date.timeIntervalSince(start) <= tolerance else { return nil }
+        let last = range == .custom ? (window.last?.mrr ?? current) : current
+        return MRRMath.growthPercent(from: first.mrr, to: last)
+    }
+
     /// Sums per-source daily history into one series in the display currency.
     ///
     /// A day is only reported when **every** source has a value for it: sources

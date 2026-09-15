@@ -50,7 +50,7 @@ struct OverviewView: View {
                 Text(hidden ? "••••" : Format.money(aggregate.mrr, currency: aggregate.currency, decimals: storage.decimals))
                     .font(DS.display).foregroundStyle(DS.ink)
                     .contentTransition(.numericText())
-                if let growth = growth30d, !hidden { TrendPill(value: growth) }
+                if let growth = rangeGrowth, !hidden { TrendPill(value: growth) }
             }
             HStack(spacing: 6) {
                 Text("ARR \(hidden ? "••••" : Format.money(aggregate.arr, currency: aggregate.currency))")
@@ -63,7 +63,7 @@ struct OverviewView: View {
             }
             Group {
                 if chartPoints.count > 1 {
-                    Sparkline(points: chartPoints, color: DS.trend(growth30d ?? 0))
+                    Sparkline(points: chartPoints, color: DS.trend(rangeGrowth ?? 0))
                 } else {
                     Text("Not enough data in this range")
                         .font(DS.caption).foregroundStyle(DS.inkTertiary)
@@ -174,9 +174,10 @@ struct OverviewView: View {
         .buttonStyle(.plain)
     }
 
-    private var growth30d: Double? {
-        guard let previous = MRRHistory.value(storage.history, daysAgo: 30) else { return nil }
-        return MRRMath.growthPercent(from: previous, to: aggregate.mrr)
+    private var rangeGrowth: Double? {
+        MRRHistory.growth(storage.history, in: storage.chartRange,
+                          from: storage.chartCustomFrom, to: storage.chartCustomTo,
+                          current: aggregate.mrr)
     }
 
     // MARK: Stats
