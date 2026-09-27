@@ -9,8 +9,15 @@ import Foundation
 struct RevenueCatProvider: RevenueProvider {
     let kind: ProviderKind = .revenuecat
 
+    /// The dashboard shows project IDs both as `1c0213f5` and `proj1c0213f5`;
+    /// the API wants the prefixed form.
+    static func normalizedProjectID(_ raw: String) -> String {
+        let id = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return id.hasPrefix("proj") ? id : "proj" + id
+    }
+
     func fetch(source: Source, secret: String, http: HTTPClient) async throws -> ProviderSnapshot {
-        guard let projectID = source.option("projectId") else { throw ProviderError.missingOption("Project ID") }
+        guard let projectID = source.option("projectId").map(Self.normalizedProjectID) else { throw ProviderError.missingOption("Project ID") }
         let json = try await http.getObject(
             "https://api.revenuecat.com/v2/projects/\(projectID)/metrics/overview",
             headers: ["Authorization": "Bearer \(secret)", "Accept": "application/json"])
@@ -34,7 +41,7 @@ struct RevenueCatProvider: RevenueProvider {
     /// RevenueCat dashboard draws, so the app inherits the whole history
     /// instead of starting from the day the source was added.
     func history(source: Source, secret: String, http: HTTPClient, days: Int) async throws -> [DailyMRR] {
-        guard let projectID = source.option("projectId") else { throw ProviderError.missingOption("Project ID") }
+        guard let projectID = source.option("projectId").map(Self.normalizedProjectID) else { throw ProviderError.missingOption("Project ID") }
         let json = try await http.getObject(
             "https://api.revenuecat.com/v2/projects/\(projectID)/charts/mrr",
             headers: ["Authorization": "Bearer \(secret)", "Accept": "application/json"],

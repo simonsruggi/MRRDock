@@ -60,3 +60,47 @@ final class AggregateTests: XCTestCase {
         XCTAssertTrue(aggregate.isPartial)
     }
 }
+
+final class DuplicateSourceTests: XCTestCase {
+    private func rc(_ project: String, enabled: Bool = true) -> Source {
+        Source(kind: .revenuecat, name: "RC", enabled: enabled, options: ["projectId": project])
+    }
+
+    func testTheSameRevenueCatProjectWithAndWithoutPrefixIsCountedOnce() {
+        let first = rc("proj1c0213f5")
+        let second = rc(" 1C0213F5 ")
+        var s = ProviderSnapshot()
+        s.mrr = MoneyBag(byCurrency: ["USD": 18])
+        s.activeSubscriptions = 1
+        let aggregate = Aggregate.build(states: [
+            (first, SourceState(snapshot: s)),
+            (second, SourceState(snapshot: s)),
+        ], currency: "USD", rate: { _, _ in 1 })
+
+        XCTAssertEqual(aggregate.mrr, 18, accuracy: 0.0001)
+        XCTAssertEqual(aggregate.activeSubscriptions, 1)
+        XCTAssertEqual(aggregate.sourcesReporting, 1)
+        XCTAssertEqual(Source.duplicateIDs(in: [first, second]), [second.id])
+    }
+
+    func testADisabledCopyDoesNotHideTheEnabledOne() {
+        let off = rc("proj1c0213f5", enabled: false)
+        let on = rc("1c0213f5")
+        XCTAssertEqual(Source.duplicateIDs(in: [off, on]), [])
+    }
+
+    func testDifferentProjectsAreNotDuplicates() {
+        XCTAssertEqual(Source.duplicateIDs(in: [rc("proj0539cdcb"), rc("proj0786bbce")]), [])
+    }
+
+    func testSourcesWithoutAnAccountOptionAreNeverDuplicates() {
+        let a = Source(kind: .stripe, name: "Stripe")
+        let b = Source(kind: .stripe, name: "Stripe")
+        XCTAssertEqual(Source.duplicateIDs(in: [a, b]), [])
+    }
+
+    func testRevenueCatProjectIDIsNormalizedForTheAPI() {
+        XCTAssertEqual(RevenueCatProvider.normalizedProjectID(" 1c0213f5 "), "proj1c0213f5")
+        XCTAssertEqual(RevenueCatProvider.normalizedProjectID("proj1c0213f5"), "proj1c0213f5")
+    }
+}

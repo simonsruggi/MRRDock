@@ -77,6 +77,11 @@ struct SourcesView: View {
                     if source.name != source.kind.displayName {
                         Text(source.kind.displayName).font(DS.caption).foregroundStyle(DS.inkTertiary)
                     }
+                    if Source.duplicateIDs(in: storage.sources).contains(source.id) {
+                        Text("DUPLICATE").font(DS.label).padding(.horizontal, 4).padding(.vertical, 1)
+                            .background(Capsule().fill(DS.warn.opacity(0.15))).foregroundStyle(DS.warn)
+                            .help("Another source already reads this account, so this one is not counted.")
+                    }
                     if source.flag("sandbox") {
                         Text("TEST").font(DS.label).padding(.horizontal, 4).padding(.vertical, 1)
                             .background(Capsule().fill(DS.warn.opacity(0.15))).foregroundStyle(DS.warn)
@@ -149,6 +154,11 @@ struct SourceEditView: View {
 
             options
 
+            if let duplicateOf {
+                Text("\(duplicateOf.name) already reads this account.")
+                    .font(DS.caption).foregroundStyle(DS.down)
+            }
+
             if let testResult {
                 Text(testResult)
                     .font(DS.caption)
@@ -165,7 +175,7 @@ struct SourceEditView: View {
                 Button("Cancel") { dismiss() }
                 Button(isNew ? "Add" : "Save") { save() }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(source.name.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(source.name.trimmingCharacters(in: .whitespaces).isEmpty || duplicateOf != nil)
             }
         }
         .padding(16)
@@ -230,6 +240,11 @@ struct SourceEditView: View {
                 }
             Text(help).font(DS.caption).foregroundStyle(DS.inkTertiary)
         }
+    }
+
+    private var duplicateOf: Source? {
+        guard let key = source.accountKey else { return nil }
+        return storage.sources.first { $0.id != source.id && $0.enabled && $0.accountKey == key }
     }
 
     private func effectiveSecret() -> String {

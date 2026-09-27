@@ -85,6 +85,33 @@ struct Source: Identifiable, Codable, Equatable {
     }
 
     func flag(_ key: String) -> Bool { options[key] == "true" }
+
+    /// The remote account this source reads, when an option names it. Two
+    /// sources with the same key report the same money, so only one of them
+    /// may count. Nil when the account is implied by the API key alone, since
+    /// secrets are never compared.
+    var accountKey: String? {
+        switch kind {
+        case .revenuecat:
+            return option("projectId").map { "revenuecat:" + RevenueCatProvider.normalizedProjectID($0) }
+        case .custom:
+            return option("url").map { "custom:" + $0.trimmingCharacters(in: .whitespaces).lowercased() }
+        default:
+            return nil
+        }
+    }
+
+    /// Enabled sources that read an account an earlier enabled source already
+    /// reads. The first one added keeps counting; the others are skipped.
+    static func duplicateIDs(in sources: [Source]) -> Set<UUID> {
+        var seen: Set<String> = []
+        var out: Set<UUID> = []
+        for source in sources where source.enabled {
+            guard let key = source.accountKey else { continue }
+            if !seen.insert(key).inserted { out.insert(source.id) }
+        }
+        return out
+    }
 }
 
 /// What a provider gives back for one account.

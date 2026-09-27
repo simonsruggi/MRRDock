@@ -25,8 +25,9 @@ struct Aggregate: Equatable {
                       currency: String,
                       rate: (String, String) -> Double?) -> Aggregate {
         var out = Aggregate(currency: currency.uppercased())
+        let duplicates = Source.duplicateIDs(in: states.map(\.source))
         for (source, state) in states {
-            guard source.enabled else { continue }
+            guard source.enabled, !duplicates.contains(source.id) else { continue }
             if state.error != nil { out.sourcesFailing += 1 }
             guard let snapshot = state.snapshot else { continue }
             out.sourcesReporting += 1

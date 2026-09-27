@@ -32,7 +32,8 @@ final class MetricsService: ObservableObject {
     func refreshAndWait() async { await performRefresh() }
 
     private func performRefresh() async {
-        let sources = storage.sources.filter(\.enabled)
+        let duplicates = Source.duplicateIDs(in: storage.sources)
+        let sources = storage.sources.filter { $0.enabled && !duplicates.contains($0.id) }
         guard !sources.isEmpty else {
             states = [:]
             aggregate = Aggregate(currency: storage.displayCurrency)

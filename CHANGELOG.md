@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+
+- The same account added twice is counted once: a RevenueCat project entered as `1c0213f5` and as `proj1c0213f5`, or a custom endpoint with the same URL, no longer doubles the MRR. The extra copy is marked DUPLICATE in Sources, and the editor refuses to save a new one
+- RevenueCat project IDs are accepted with or without the `proj` prefix
+
 ## 1.1.1
 
 - The growth pill follows the selected chart range instead of always comparing with 30 days ago; hidden when history doesn't reach back to the start of the range
