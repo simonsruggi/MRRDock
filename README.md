@@ -287,10 +287,10 @@ Or straight from SwiftPM:
 
 ```bash
 swift run MRRDock       # runs the menu bar app
-swift test              # 37 tests over the pure logic
+swift test              # unit tests over the pure logic
 ```
 
-Requirements: macOS 14+, Swift 5.9 (Xcode 15). No package dependencies — nothing to vendor, nothing to audit but the app itself. See [PROJECT.md](PROJECT.md) for the architecture.
+Requirements: macOS 14+, Swift 5.9 (Xcode 15). One package dependency: [Sparkle](https://sparkle-project.org) for in-app updates. See [PROJECT.md](PROJECT.md) for the architecture.
 
 ## FAQ
 
@@ -331,7 +331,7 @@ For the MRR figure itself, yes: MRRDock reads the same subscriptions from the sa
 Yes, that's the main reason it exists. Add one source per account or project, in any mix, and the menu bar shows the converted total.
 
 **Is there a Windows or Linux version?**
-No. MRRDock is a native macOS menu bar app (SwiftUI, no dependencies). The provider code is plain Swift and reusable, but there's no cross-platform build.
+No. MRRDock is a native macOS menu bar app (SwiftUI, only Sparkle for updates). The provider code is plain Swift and reusable, but there's no cross-platform build.
 
 ## Troubleshooting
 
