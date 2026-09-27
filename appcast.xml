@@ -6,23 +6,21 @@
         <description>MRRDock update feed</description>
         <language>en</language>
         <item>
-            <title>Version 1.1.1</title>
-            <pubDate>Tue, 15 Sep 2026 16:23:23 +0200</pubDate>
-            <sparkle:version>3</sparkle:version>
-            <sparkle:shortVersionString>1.1.1</sparkle:shortVersionString>
+            <title>Version 1.1.2</title>
+            <pubDate>Sun, 27 Sep 2026 11:50:18 +0200</pubDate>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.1.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h3>Small fixes</h3>
+<h3>Fix</h3>
 <ul>
-<li><b>The change follows the range</b> — the percentage next to your MRR now describes the chart below it: 24H, 7D, 1Y or your own dates, instead of always the last 30 days.</li>
-<li><b>Closes when you click away</b> — the popover now closes on a click in any other app.</li>
-<li><b>Version in the header</b> — the version you are running is shown at the top.</li>
+<li><b>No more double counting</b> — adding the same RevenueCat project twice (for example as <code>1c0213f5</code> and <code>proj1c0213f5</code>) or the same custom endpoint no longer counts its MRR twice. The extra copy is marked <i>Duplicate</i> in Sources.</li>
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.1.1/MRRDock.zip"
+            <enclosure url="https://github.com/simonsruggi/MRRDock/releases/download/v1.1.2/MRRDock.zip"
                        type="application/octet-stream"
-                       sparkle:edSignature="JLD25MKvsy36M2a/49oRdv+79G3nx9CrWr2A5463DQEfso1HA5DQ2JNlMUCPfGYhjNYhB7DjUcDCHbADyWshBg=="
-                       length="2590920"/>
+                       sparkle:edSignature="NrwyB964uep57rz+DH1K2i073Hkdv7KJtQasfiBcUkc5GUtVl94AM1k7K0C+z80ExBzXrPZU3HjDJmFcFmWdCg=="
+                       length="2599371"/>
         </item>
     </channel>
 </rss>
