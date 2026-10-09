@@ -8,7 +8,7 @@ Perché le stelle contano oltre la vanità: `homebrew-cask` ufficiale (pagina
 con **225 stelle** — oppure 90 fork o 90 watcher — e un repo di almeno **30 giorni**
 (Package Acceptance Policy di Homebrew). Fino a lì resta il tap personale.
 
-Sito: <https://mrrdock.simoneruggiero.com> · Repo: <https://github.com/simonsruggi/MRRDock>
+Repo: <https://github.com/simonsruggi/MRRDock>
 
 ---
 
@@ -64,7 +64,7 @@ una volta sola.
 - **Name:** MRRDock
 - **Tagline** (max 60): `Your MRR from every payment platform, in the menu bar`
 - **Topics:** Mac, Developer Tools, SaaS, Analytics, Open Source
-- **Links:** sito `https://mrrdock.simoneruggiero.com`, repo GitHub
+- **Links:** repo GitHub
 - **Media:** `screenshots/overview.png`, `by-source.png`, `sources.png`, `add-source.png`,
   più l'OG image (`mrrdock-website/public/og.png`) come prima immagine.
 
@@ -137,8 +137,7 @@ Una nuova app resta in coda mesi; 5 $ una volta la spostano in testa.
 - PR alle due awesome list che contano: [open-source-mac-os-apps#1367](https://github.com/serhii-londar/open-source-mac-os-apps/pull/1367)
   (50k stelle) e [awesome-mac#2856](https://github.com/jaywcjlove/awesome-mac/pull/2856)
   (113k stelle, voce in en/zh/ja/ko accanto a StockDock).
-- Sito su <https://mrrdock.simoneruggiero.com> (JSON-LD SoftwareApplication + FAQPage,
-  llms.txt, sitemap in Search Console, IndexNow a ogni deploy).
+- Sito mrrdock.simoneruggiero.com (JSON-LD, llms.txt, sitemap, IndexNow): spento il 09/10/2026.
 - Social preview del repo, campo *homepage*, description e topic rifatti.
 - Post Medium: <https://medium.com/@simonsruggi/i-built-a-free-macos-menu-bar-app-that-shows-my-mrr-across-every-payment-platform-78997b76a2f3>
 

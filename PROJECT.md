@@ -67,7 +67,6 @@ Three rules the code sticks to:
 
 ## Website and discoverability
 
-Landing page: <https://mrrdock.simoneruggiero.com> — repo `simonsruggi/mrrdock-website`
 (`~/webapps/mrrdock-website`), static HTML on Cloudflare Pages, deployed on push. It carries
 the schema.org `SoftwareApplication` + `FAQPage` markup, `llms.txt` and the IndexNow
 submission that a GitHub repo page cannot have. When the README's numbers change (per-platform
