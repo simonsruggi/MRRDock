@@ -43,6 +43,7 @@ brew install --cask simonsruggi/tap/mrrdock
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
+- [More open source Mac apps](#more-open-source-mac-apps)
 
 ## Why MRRDock
 
@@ -355,6 +356,10 @@ No. MRRDock is a native macOS menu bar app (SwiftUI, only Sparkle for updates). 
 New providers are welcome and small — a case in `ProviderKind`, an implementation of `RevenueProvider`, a parsing test with a real response body. [PROJECT.md](PROJECT.md) walks through the architecture and the five steps.
 
 Bug reports and feature requests: [open an issue](https://github.com/simonsruggi/MRRDock/issues). If MRRDock's number disagrees with your dashboard's, that's the most useful issue you can file — bring the two figures and the platform.
+
+## More open source Mac apps
+
+Looking for other free, open source apps for your Mac? I keep **[Awesome Mac Open Source](https://github.com/simonsruggi/awesome-mac-open-source)**: 1,000+ maintained macOS apps sorted by GitHub stars, with the Homebrew command to install each one, refreshed every week.
 
 ## License
 
