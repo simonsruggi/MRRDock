@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- **MCP server**: Claude, Cursor and other MCP clients can ask MRRDock for MRR, ARR, revenue, subscriptions and MRR history (`MRRDock --mcp`). API keys stay in the Keychain and the tools only read
+
 ## 1.1.2
 
 - The same account added twice is counted once: a RevenueCat project entered as `1c0213f5` and as `proj1c0213f5`, or a custom endpoint with the same URL, no longer doubles the MRR. The extra copy is marked DUPLICATE in Sources, and the editor refuses to save a new one

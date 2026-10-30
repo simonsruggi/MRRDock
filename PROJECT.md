@@ -75,6 +75,13 @@ coverage, the MRR formula), that page has to change with it: they are meant to a
 `blog/launch-kit.md` holds the launch copy (Show HN, Product Hunt, Reddit, AlternativeTo) and
 the thresholds `Homebrew/homebrew-cask` requires before a self-submission is eligible.
 
+## MCP server (`--mcp`)
+
+Launched with `--mcp`, the binary skips the UI and the Sparkle updater (`MCPServer.requested`) and runs a Model Context Protocol server over stdio: newline-delimited JSON-RPC, written by hand in `MCP/MCPServer.swift` with no dependencies. The file is identical in RamDock, MRRDock and StockDock: change it in one and copy it to the others. Requests are read on a background thread while `dispatchMain()` keeps the main queue free, so tools can await `@MainActor` services through `MCPServer.wait`.
+
+All tools are read-only and never save the app's data file. Tools in `MCP/MRRDockTools.swift`: `get_mrr` asks the providers directly instead of going through `MetricsService.refresh`, which would record history and fire milestones and webhooks. Keychain reads only work without a prompt from a binary signed with the Team ID (`build-app.sh`), not from a bare `swift build`.
+Check with the official client: `npx @modelcontextprotocol/inspector --cli <binary> --mcp --method tools/list`.
+
 ## Releasing
 
 `./release.sh <version> <build>` (local, gitignored: it needs the Developer ID, the notarytool keychain profile, the Sparkle private key and push access to the tap) runs: bump → test → universal build → assemble → smoke test → nested code-sign → notarize → staple → Sparkle EdDSA signature → `appcast.xml` → GitHub release → Homebrew cask bump.

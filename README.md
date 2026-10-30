@@ -32,6 +32,7 @@ brew install --cask simonsruggi/tap/mrrdock
 - [Screenshots](#screenshots)
 - [Supported platforms](#supported-platforms)
 - [Install](#install)
+- [Use it with Claude and other AI assistants (MCP)](#use-it-with-claude-and-other-ai-assistants-mcp)
 - [Connect each platform](#connect-each-platform) — [Stripe](#stripe) · [RevenueCat](#revenuecat) · [Paddle](#paddle) · [Lemon Squeezy](#lemon-squeezy) · [Polar](#polar) · [Dodo Payments](#dodo-payments) · [Gumroad](#gumroad) · [Custom endpoint](#custom-endpoint-superwall-app-store-connect-anything-else)
 - [How MRR is calculated](#how-mrr-is-calculated)
 - [MRRDock vs the alternatives](#mrrdock-vs-the-alternatives)
@@ -118,6 +119,44 @@ Or [**download MRRDock.zip**](https://github.com/simonsruggi/MRRDock/releases/la
 Prefer to build it yourself? See [Build from source](#build-from-source) — it takes one command.
 
 MRRDock lives in the menu bar: there's no Dock icon and no window. Click the figure to open the popover.
+
+## Use it with Claude and other AI assistants (MCP)
+
+MRRDock 1.2.0 and later is also an [MCP server](https://modelcontextprotocol.io): AI assistants that support the Model Context Protocol can read its data and answer questions about it.
+
+| Tool | What it returns |
+|---|---|
+| `get_mrr` | MRR, ARR, revenue of the last 28 days, active subscriptions and trials, in total and per platform, fetched live; change vs 30 days ago |
+| `get_mrr_history` | Daily total MRR, up to two years back |
+
+Try asking:
+
+- *"What's my MRR today, and how did it change this month?"*
+- *"Which platform brings in the most revenue?"*
+- *"Plot my MRR over the last 90 days."*
+
+**Claude Code**
+
+```bash
+claude mcp add mrrdock -- /Applications/MRRDock.app/Contents/MacOS/MRRDock --mcp
+```
+
+**Claude Desktop, Cursor and other MCP clients** — add this to the client's MCP config (Claude Desktop: *Settings → Developer → Edit Config*; Cursor: `~/.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "mrrdock": {
+      "command": "/Applications/MRRDock.app/Contents/MacOS/MRRDock",
+      "args": ["--mcp"]
+    }
+  }
+}
+```
+
+The menu bar app doesn't need to be running: the client starts MRRDock in the background with `--mcp`, without any window or menu bar icon.
+
+API keys never leave the macOS Keychain and are never shown to the AI: MRRDock calls the providers itself and passes only the numbers. Those numbers do reach the AI service you connect, so connect only one you trust with your revenue figures. The tools only read: history, milestones and webhooks are untouched.
 
 ## Connect each platform
 
